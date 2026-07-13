@@ -1,0 +1,431 @@
+@import "tailwindcss";
+
+/* ============================================================
+   KAYUMANGGI — Dark Hearth design tokens
+   ============================================================ */
+:root {
+  --espresso: #14100c; /* base background */
+  --espresso-deep: #0d0a07; /* deepest wells */
+  --charcoal: #211a13; /* raised surface */
+  --charcoal-2: #2c2318; /* cards / inputs */
+  --bone: #efe7d8; /* primary text */
+  --bone-dim: #c9bca6; /* secondary text */
+  --bone-faint: #978b7c; /* muted labels / captions — 5.2:1 on charcoal */
+  --clay: #b5643c; /* terracotta — BORDERS/FILLS ONLY (3.97:1, under AA for text) */
+  --clay-text: #cf8058; /* terracotta for TEXT — 5.6:1 on charcoal, 6.2:1 on espresso */
+  --brass: #c79a54; /* primary accent / CTA */
+  --brass-bright: #e0b978; /* accent hover */
+  --line: rgba(239, 231, 216, 0.12);
+  --line-strong: rgba(239, 231, 216, 0.22);
+}
+
+@theme inline {
+  --color-background: var(--espresso);
+  --color-surface: var(--charcoal);
+  --color-card: var(--charcoal-2);
+  --color-foreground: var(--bone);
+  --color-muted: var(--bone-dim);
+  --color-faint: var(--bone-faint);
+  --color-clay: var(--clay);
+  --color-brass: var(--brass);
+  --color-brass-bright: var(--brass-bright);
+  --color-line: var(--line);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+
+  --ease-hearth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+* {
+  border-color: var(--line);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--espresso);
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background: var(--espresso);
+  color: var(--bone);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--brass);
+  color: var(--espresso);
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-display {
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: 0.01em;
+}
+
+/* Accessible focus ring, on-brand */
+:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ============================================================
+   Typographic helpers
+   ============================================================ */
+.eyebrow {
+  font-family: var(--font-body), sans-serif;
+  font-size: clamp(0.68rem, 0.62rem + 0.2vw, 0.78rem);
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.eyebrow-dim {
+  color: var(--bone-faint);
+}
+
+/* ============================================================
+   Film grain overlay (fixed, whole page)
+   ============================================================ */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .grain::after {
+    animation: grain-shift 0.5s steps(3) infinite;
+  }
+}
+@keyframes grain-shift {
+  0% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(-4%, 2%);
+  }
+  66% {
+    transform: translate(3%, -3%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+/* ============================================================
+   Candlelit "photograph" placeholders (duotone + light pool)
+   ------------------------------------------------------------
+   A designed stand-in for real food/interior photography.
+   ============================================================ */
+.plate {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--espresso-deep);
+  background-image:
+    radial-gradient(
+      120% 90% at var(--px, 62%) var(--py, 38%),
+      rgba(224, 185, 120, 0.5) 0%,
+      rgba(181, 100, 60, 0.32) 22%,
+      rgba(44, 35, 24, 0.55) 52%,
+      rgba(13, 10, 7, 0.96) 82%
+    ),
+    radial-gradient(
+      70% 60% at 78% 82%,
+      rgba(199, 154, 84, 0.16) 0%,
+      transparent 60%
+    );
+  isolation: isolate;
+}
+.plate::before {
+  /* soft charred vignette */
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: radial-gradient(
+    100% 100% at 50% 40%,
+    transparent 44%,
+    rgba(13, 10, 7, 0.72) 100%
+  );
+}
+.plate--cool {
+  background-image: radial-gradient(
+    120% 90% at 40% 30%,
+    rgba(201, 188, 166, 0.28) 0%,
+    rgba(120, 96, 66, 0.24) 30%,
+    rgba(28, 22, 15, 0.7) 60%,
+    rgba(13, 10, 7, 0.97) 88%
+  );
+}
+.plate__grain {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0.28;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.plate__label {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 4;
+  padding: 1rem 1.15rem;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+
+/* ============================================================
+   Smooth-scroll hero: how far you scroll before the hero lets go.
+   ------------------------------------------------------------
+   Phone-first: 70svh (~0.7 of a screen). The desktop px value is a
+   deliberate, tuned length — but as a CONSTANT it turns into ~2.4 screens
+   of thumb-scrolling on a 667px phone before any content shows. So the
+   px value only applies from md up; phones get a viewport-relative one.
+   ============================================================ */
+.ssh-wrap {
+  --ssh-scroll: 70svh;
+  height: calc(100svh + var(--ssh-scroll));
+}
+@media (min-width: 768px) {
+  .ssh-wrap {
+    --ssh-scroll: var(--ssh-scroll-desktop, 1400px);
+  }
+}
+
+/* Ken-Burns drift for hero/gallery imagery */
+.kenburns {
+  will-change: transform;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .kenburns {
+    animation: kenburns 22s var(--ease-hearth) infinite alternate;
+  }
+}
+@keyframes kenburns {
+  from {
+    transform: scale(1.05) translate(0, 0);
+  }
+  to {
+    transform: scale(1.16) translate(-2.2%, -1.6%);
+  }
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 48px;
+  padding: 0 1.6rem;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    background-color 0.25s var(--ease-hearth),
+    color 0.25s var(--ease-hearth),
+    border-color 0.25s var(--ease-hearth),
+    transform 0.25s var(--ease-hearth);
+}
+.btn-primary {
+  background: var(--brass);
+  color: var(--espresso);
+}
+.btn-primary:hover {
+  background: var(--brass-bright);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--bone);
+  border-color: var(--line-strong);
+}
+.btn-ghost:hover {
+  border-color: var(--brass);
+  color: var(--brass-bright);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn:active {
+    transform: translateY(1px) scale(0.985);
+  }
+}
+
+/* Wordmark link (nav only): fade the SVG glyphs to the brass accent on hover.
+   Transition is declared on the <text> itself so the fill animates smoothly in
+   both directions (no reliance on inherited color). The footer lockup is not a
+   link and paints with a gradient, so it is untouched by this. */
+.wordmark-link svg text {
+  transition: fill 0.35s var(--ease-hearth);
+}
+.wordmark-link:hover svg text {
+  fill: var(--brass);
+}
+
+/* Understated animated underline link */
+.link-underline {
+  position: relative;
+  padding-bottom: 2px;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 100%;
+  background: var(--brass);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s var(--ease-hearth);
+}
+.link-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ============================================================
+   Menu leader lines (dish name ......... price)
+   ============================================================ */
+.leader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+.leader__fill {
+  flex: 1;
+  border-bottom: 1px dotted var(--line-strong);
+  transform: translateY(-0.25rem);
+}
+
+/* Hairline rule with centered ornament */
+.rule {
+  height: 1px;
+  background: var(--line);
+}
+
+/* ============================================================
+   Infinite image marquee (gallery)
+   ============================================================ */
+.marquee {
+  overflow: hidden;
+  /* fade the strip out at both edges so it reads as endless */
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+}
+.marquee__track {
+  animation: marquee-scroll var(--marquee-speed, 48s) linear infinite;
+  will-change: transform;
+}
+/* let people stop it to actually look at a dish */
+.marquee:hover .marquee__track {
+  animation-play-state: paused;
+}
+@keyframes marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee__track {
+    animation: none;
+  }
+  /* no auto-motion — let them scroll the strip themselves instead */
+  .marquee {
+    overflow-x: auto;
+  }
+}
+
+/* ============================================================
+   GSAP reveal initial states — only when JS/motion allowed.
+   Guarded by .anim-ready on <html> (added by the animation hook)
+   so no-JS and reduced-motion users always see content.
+   ============================================================ */
+.anim-ready .reveal {
+  opacity: 0;
+  transform: translateY(28px);
+}
+.anim-ready .reveal-mask > * {
+  opacity: 0;
+}
+.anim-ready [data-hero-content] {
+  opacity: 0;
+}
+.anim-ready [data-stagger-item] {
+  opacity: 0;
+}
+.anim-ready [data-draw] {
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.anim-ready [data-hero="cta"] > * {
+  opacity: 0;
+}
+/* Smooth-scroll hero: initial reveal window (motion-only, pre-paint) */
+.anim-ready .ssh-media {
+  clip-path: inset(25% round 3px);
+}
+/* Hero overlay items start hidden and compose in on scroll (motion-only).
+   visibility:hidden matches GSAP autoAlpha so they aren't clickable early. */
+.anim-ready [data-hero-item] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* utility: tabular figures for prices */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}

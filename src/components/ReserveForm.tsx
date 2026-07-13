@@ -3,19 +3,20 @@
 import { useState, useTransition } from "react";
 import { Check } from "./icons";
 import { submitReservation } from "@/app/actions";
+import { TIMES, PARTY_SIZES, OCCASIONS } from "@/lib/reservations";
 
 type Errors = Partial<Record<"name" | "email" | "date" | "time" | "party", string>>;
-
-const TIMES = ["6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM", "8:00 PM", "8:30 PM", "9:00 PM"];
-const PARTY = ["1 guest", "2 guests", "3 guests", "4 guests", "5 guests", "6 guests", "7+ (call us)"];
-const OCCASIONS = ["—", "Anniversary", "Birthday", "Business", "Celebration", "Just because"];
+/** The verdict, once the server has checked the book against the room. */
+type Outcome =
+  | { status: "confirmed" }
+  | { status: "declined"; alternatives: string[]; time: string };
 
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const today = new Date().toISOString().split("T")[0];
 
 export default function ReserveForm() {
   const [errors, setErrors] = useState<Errors>({});
-  const [sent, setSent] = useState(false);
+  const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -45,38 +46,66 @@ export default function ReserveForm() {
     }
     // Capture values now — the event is recycled before the async work runs.
     const data = new FormData(form);
+    const time = String(data.get("time") ?? "");
     startTransition(async () => {
       const result = await submitReservation(data);
-      if (result.ok) setSent(true);
-      else setSubmitError(result.error);
+      if (!result.ok) return setSubmitError(result.error);
+      setOutcome(
+        result.status === "confirmed"
+          ? { status: "confirmed" }
+          : { status: "declined", alternatives: result.alternatives, time }
+      );
     });
   }
 
-  if (sent) {
+  if (outcome?.status === "confirmed") {
     return (
-      <div className="flex min-h-[420px] flex-col items-center justify-center rounded-sm border border-[var(--line)] bg-[var(--charcoal)] px-8 py-14 text-center">
+      <Panel>
         <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[var(--brass)] text-[var(--brass)]">
           <Check className="h-6 w-6" />
         </span>
         <h3 className="mt-6 font-display text-4xl text-[var(--bone)]">
-          Request received
+          Your table is confirmed
         </h3>
         <p className="mt-3 max-w-sm text-[var(--bone-dim)]">
-          Salamat. Our maître d’ will confirm your table by email within the hour.
-          For same-day requests, please call{" "}
-          <span className="whitespace-nowrap text-[var(--bone)]">
-            +63 2 8555 0170
-          </span>
-          .
+          Salamat. A confirmation is on its way to your inbox. Your table is held
+          for 15 minutes past the reserved time.
         </p>
-        <button
-          type="button"
-          onClick={() => setSent(false)}
-          className="link-underline mt-8 text-[0.72rem] font-medium uppercase tracking-[0.24em] text-[var(--brass)]"
-        >
-          Make another request
-        </button>
-      </div>
+        <Again onClick={() => setOutcome(null)}>Book another table</Again>
+      </Panel>
+    );
+  }
+
+  if (outcome?.status === "declined") {
+    return (
+      <Panel>
+        <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[var(--clay)] font-display text-2xl text-[var(--clay-text)]">
+          &mdash;
+        </span>
+        <h3 className="mt-6 font-display text-4xl text-[var(--bone)]">
+          That seating is full
+        </h3>
+        <p className="mt-3 max-w-sm text-[var(--bone-dim)]">
+          We keep only forty seats, and{" "}
+          <span className="text-[var(--bone)]">{outcome.time}</span> is spoken for.
+          {outcome.alternatives.length > 0
+            ? " These are still open that evening:"
+            : " We’ve emailed you — reply and we’ll hold the next table that opens."}
+        </p>
+
+        {outcome.alternatives.length > 0 && (
+          <p className="tnum mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 font-display text-xl text-[var(--brass)]">
+            {outcome.alternatives.map((t) => (
+              <span key={t}>{t}</span>
+            ))}
+          </p>
+        )}
+
+        <a href="tel:+63285550170" className="btn btn-primary mt-8">
+          Call to book
+        </a>
+        <Again onClick={() => setOutcome(null)}>Try another time</Again>
+      </Panel>
     );
   }
 
@@ -86,6 +115,15 @@ export default function ReserveForm() {
       onSubmit={onSubmit}
       className="rounded-sm border border-[var(--line)] bg-[var(--charcoal)] p-6 sm:p-9"
     >
+      {/* Honeypot. Positioned off-screen rather than display:none — plenty of
+          bots skip hidden inputs but happily fill an off-screen one. tabIndex=-1
+          and aria-hidden keep it out of the keyboard and screen-reader paths, so
+          no real person can reach it. The server drops anything that fills it. */}
+      <div aria-hidden className="absolute left-[-9999px] h-px w-px overflow-hidden">
+        <label htmlFor="company">Company</label>
+        <input id="company" name="company" type="text" tabIndex={-1} autoComplete="off" />
+      </div>
+
       <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
         <Field label="Name" name="name" error={errors.name}>
           <input
@@ -151,7 +189,7 @@ export default function ReserveForm() {
             <option value="" disabled>
               Party size
             </option>
-            {PARTY.map((p) => (
+            {PARTY_SIZES.map((p) => (
               <option key={p}>{p}</option>
             ))}
           </select>
@@ -226,6 +264,27 @@ export default function ReserveForm() {
         }
       `}</style>
     </form>
+  );
+}
+
+/** The post-submit card. Both verdicts share it — only what's inside differs. */
+function Panel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-[420px] flex-col items-center justify-center rounded-sm border border-[var(--line)] bg-[var(--charcoal)] px-8 py-14 text-center">
+      {children}
+    </div>
+  );
+}
+
+function Again({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="link-underline mt-8 text-[0.72rem] font-medium uppercase tracking-[0.24em] text-[var(--brass)]"
+    >
+      {children}
+    </button>
   );
 }
 

@@ -15,9 +15,12 @@ const token = process.env.AIRTABLE_TOKEN;
 const baseId = process.env.AIRTABLE_BASE_ID;
 const table = process.env.AIRTABLE_TABLE ?? "Reservations";
 
+// process.exit() while fetch still holds an open handle trips a libuv assertion
+// on Windows. Set the code and let the process wind down on its own.
 const die = (msg) => {
   console.error(`\n  ✗ ${msg}\n`);
-  process.exit(1);
+  process.exitCode = 1;
+  throw new Error("check failed");
 };
 
 if (!token || !baseId) {

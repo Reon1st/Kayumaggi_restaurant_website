@@ -13,11 +13,11 @@ type Props = {
 export default function Destination({ stop, city, coords, kitchen }: Props) {
   return (
     <div className="reveal relative">
-      {/* node on the rail (desktop only; rail is hidden on mobile) */}
-      <span
-        aria-hidden
-        className="absolute -left-8 top-3 hidden h-3 w-3 -translate-x-1/2 rounded-full bg-[var(--brass)] ring-4 ring-[var(--charcoal)] lg:block"
-      />
+      {/* Node on the rail (desktop only; rail is hidden on mobile).
+          Ignites when the progress line reaches it. Centering lives in the
+          .rail-node CSS, not a Tailwind translate class, so the lit state can
+          add a scale() without the two transforms clobbering each other. */}
+      <span aria-hidden data-rail-node className="rail-node absolute -left-8 top-3 hidden h-[7px] w-[7px] rounded-full lg:block" />
       <p className="eyebrow eyebrow-dim tnum">{stop}</p>
       <h3 className="mt-2 font-display text-4xl leading-none text-[var(--bone)]">{city}</h3>
       <p className="tnum mt-2 text-[0.74rem] tracking-[0.22em] text-[var(--brass)]">{coords}</p>

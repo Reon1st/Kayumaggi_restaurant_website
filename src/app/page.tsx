@@ -166,11 +166,25 @@ export default function Home() {
 
           {/* The itinerary — four stops, threaded by the route rail */}
           <div className="relative mt-24">
-            {/* route rail (desktop) */}
-            <span
+            {/* Route rail (desktop). Three layers: the dotted TRACK is the route
+                not yet travelled; the PROGRESS line draws down it scrubbed to
+                scroll; the HEAD is the glow riding the tip. Each city's node
+                ignites as the head passes it — see useHearthMotion. */}
+            <div
               aria-hidden
-              className="pointer-events-none absolute bottom-6 left-6 top-3 hidden border-l border-dotted border-[var(--brass)]/35 lg:block"
-            />
+              data-rail
+              className="pointer-events-none absolute bottom-6 left-6 top-3 hidden w-px lg:block"
+            >
+              <span className="absolute inset-0 border-l border-dotted border-[var(--brass)]/25" />
+              <span
+                data-rail-progress
+                className="absolute inset-0 w-px bg-gradient-to-b from-[var(--brass)] via-[var(--brass-bright)] to-[var(--brass)]"
+              />
+              <span
+                data-rail-head
+                className="absolute -left-[2px] top-0 h-[5px] w-[5px] rounded-full bg-[var(--brass-bright)] shadow-[0_0_10px_2px_rgba(224,185,120,0.45)]"
+              />
+            </div>
             <div className="space-y-20">
               {MENU.map((city) => (
                 <div

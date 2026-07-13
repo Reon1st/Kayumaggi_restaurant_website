@@ -343,6 +343,53 @@ a {
 }
 
 /* ============================================================
+   Route rail — the itinerary node ("stop") on the menu rail
+   ------------------------------------------------------------
+   Default state here is LIT. That is deliberate: it's what no-JS and
+   reduced-motion visitors get — a finished, fully-drawn route. The unlit
+   start only exists under `.anim-ready`, i.e. when motion is welcome, and
+   GSAP adds `.is-lit` as the progress line reaches each stop.
+   ============================================================ */
+.rail-node {
+  transform: translateX(-50%);
+  background: var(--brass);
+  /* Layered rings, smallest out: an opaque collar that punches the dotted rail
+     out from behind the dot, then a hairline halo, then the glow. A real border
+     would thicken the dot itself; rings sit outside it, so the dot stays small. */
+  box-shadow:
+    0 0 0 3px var(--charcoal),
+    0 0 0 4px rgba(199, 154, 84, 0.3),
+    0 0 10px 2px rgba(224, 185, 120, 0.3);
+  transition:
+    background-color 0.55s var(--ease-hearth),
+    box-shadow 0.55s var(--ease-hearth),
+    transform 0.55s var(--ease-hearth);
+}
+/* motion-only: an unreached stop is a hollow, unlit socket */
+.anim-ready .rail-node:not(.is-lit) {
+  background: var(--charcoal);
+  box-shadow:
+    0 0 0 3px var(--charcoal),
+    inset 0 0 0 1px rgba(199, 154, 84, 0.45);
+  transform: translateX(-50%) scale(0.85);
+}
+/* motion-only initial states for the rail itself (pre-paint, no flash) */
+.anim-ready [data-rail-progress] {
+  transform: scaleY(0);
+  transform-origin: top center;
+}
+/* The head exists only while travelling: it strikes on departure and is gone on
+   arrival. Opacity is class-driven so it survives the latch (see useHearthMotion)
+   rather than being scrubbed back in when you scroll up. */
+.anim-ready [data-rail-head] {
+  opacity: 0;
+  transition: opacity 0.45s var(--ease-hearth);
+}
+.anim-ready [data-rail-head].is-travelling {
+  opacity: 1;
+}
+
+/* ============================================================
    Infinite image marquee (gallery)
    ============================================================ */
 .marquee {

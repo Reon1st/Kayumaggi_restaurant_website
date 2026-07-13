@@ -163,8 +163,13 @@ The photographs were produced from written art-direction prompts — candlelit, 
 </tr>
 </table>
 
-**Hero video** → [`public/hero-boeuf.mp4`](public/hero-boeuf.mp4)
-*(GitHub won't play a relative `.mp4` inline. To embed a player, drag the file into any GitHub issue comment, then paste the resulting `user-attachments` URL here.)*
+### The hero video
+
+![Hero — Bœuf Bourguignon](docs/hero.gif)
+
+<sub>4-second preview, 560px · full clip: [`public/hero-boeuf.mp4`](public/hero-boeuf.mp4) (1280×720, 10s) · watch it in motion on the [live site](https://kayumaggi-restaurant-website.vercel.app)</sub>
+
+*Why a GIF and not the mp4?* GitHub only renders an inline video player for files uploaded through its own attachment flow — a relative `.mp4` path renders as a link, not a player. A GIF autoplays from the repo. The cost is that **GIF is a terrible video codec**: 256 colours, no interframe compression. A dark, film-grained clip is its worst case — the first honest export was **7.7 MB for five seconds**, larger than the source video. Denoising (`hqdn3d`), 10fps, and 560px brought it to 3.3 MB for four seconds. The grain is what made it expensive: it changes every pixel every frame, which is precisely what GIF cannot compress.
 
 ---
 
